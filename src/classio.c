@@ -16,11 +16,11 @@ static void handle_battery(BatteryChargeState charge_state) {
   text_layer_set_text(s_battery_layer, battery_text);
 }
 
-static void handle_second_tick(struct tm* tick_time, TimeUnits units_changed) {
+static void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) {
   // Needs to be static because it's used by the system later.
-  static char s_time_text[] = "00:00:00";
+  static char s_time_text[] = "00:00";
 
-  strftime(s_time_text, sizeof(s_time_text), "%T", tick_time);
+  strftime(s_time_text, sizeof(s_time_text), "%R", tick_time);
   text_layer_set_text(s_time_layer, s_time_text);
 
   handle_battery(battery_state_service_peek());
@@ -58,9 +58,9 @@ static void main_window_load(Window *window) {
   // (This is why it's a good idea to have a separate routine to do the update itself.)
   time_t now = time(NULL);
   struct tm *current_time = localtime(&now);
-  handle_second_tick(current_time, SECOND_UNIT);
+  handle_minute_tick(current_time, MINUTE_UNIT);
 
-  tick_timer_service_subscribe(SECOND_UNIT, handle_second_tick);
+  tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
   battery_state_service_subscribe(handle_battery);
   bluetooth_connection_service_subscribe(handle_bluetooth);
 
